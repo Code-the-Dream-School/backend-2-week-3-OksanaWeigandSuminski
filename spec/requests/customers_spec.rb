@@ -1,13 +1,5 @@
 require 'rails_helper'
 
-RSpec.describe "Customers", type: :request do
-  describe "GET /customers" do
-    it "works! (now write some real specs)" do
-      get customers_path
-      expect(response).to have_http_status(200)
-    end
-  end
-end
 RSpec.describe "CustomersControllers", type: :request do
   describe "get customers_path" do
     it "renders the index view" do
@@ -42,12 +34,11 @@ RSpec.describe "CustomersControllers", type: :request do
     end
   end
   describe "post customers_path with valid data" do
-    it "saves a new entry and redirects to the show path for the entry" do
+    it "saves a new entry and redirects to the show path for the entry"  do
       customer_attributes = FactoryBot.attributes_for(:customer)
       expect { post customers_path, params: {customer: customer_attributes}
-    }.to_not change(Customer, :count)
-      # expect(response).to redirect_to customer_path(id: Customer.last.id)
-      expect(response.status).to eq(200)
+    }.to change(Customer, :count)
+      expect(response).to redirect_to customer_path(id: Customer.last.id)
     end
   end
   describe "post customers_path with invalid data" do
@@ -79,11 +70,14 @@ RSpec.describe "CustomersControllers", type: :request do
   end
   describe "delete a customer record" do
     it "deletes a customer record" do
-      customer_attributes = FactoryBot.attributes_for(:customer)
-      customer_attributes.delete(:first_name)
-      expect { post customers_path, params: {customer: customer_attributes}
-    }.to_not change(Customer, :count)
-      expect(response.status).to eq(200)
+      customer = FactoryBot.create(:customer)
+      # don't need any parameters for delete
+      # the only parameter it checks is the id of the customer record to delete, which is in the URL
+      # the number of records should change
+      expect { delete customer_path(id: customer.id)
+             }.to change(Customer, :count)
+      #  expect a redirect to customers_path
+      expect(response).to redirect_to customers_path
     end
   end
 end
